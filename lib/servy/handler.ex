@@ -20,16 +20,16 @@ defmodule Servy.Handler do
   def log(conv), do: IO.inspect(conv)
 
   def route(conv) do
-    conv = %{ method: "GET", path: "/wildthings", resp_body: "Hello World" }
+    %{ conv | resp_body: "Hello World" }
   end
 
   def format_response(conv) do
     """
     HTTP/1.1 200 OK
     Content-Type: text/html
-    Content-Length: 20
+    Content-Length: #{byte_size(conv.resp_body)}
 
-    Hello World
+    #{conv.resp_body}
     """
   end
 end
