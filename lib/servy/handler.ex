@@ -1,4 +1,6 @@
 defmodule Servy.Handler do
+  require Logger
+
   def handle(request) do
     request
     |> parse
@@ -26,10 +28,10 @@ defmodule Servy.Handler do
     }
   end
 
-  def log(conv), do: IO.inspect(conv)
+  def log(conv), do: Logger.info(conv)
 
   def track(%{status: 404, path: path} = conv) do
-    IO.puts "Warning: #{path} is one the loose!"
+    Logger.info "Warning: #{path} is one the loose!"
     conv
   end
 
