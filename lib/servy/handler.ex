@@ -2,6 +2,7 @@ defmodule Servy.Handler do
   def handle(request) do
     request
     |> parse
+    |> rewrite_request
     |> rewrite_path
     |> log
     |> route
@@ -36,6 +37,12 @@ defmodule Servy.Handler do
   end
 
   def track(conv), do: conv
+
+  def rewrite_request(%{ path: "/bears?id=" <> id } = conv) do
+    %{ conv | path: "/bears/#{id}" }
+  end
+
+  def rewrite_request(conv), do: conv
 
   def rewrite_path(%{path: "wildlife" } = conv) do
     %{ conv | path: "/wildthings" }
@@ -82,7 +89,7 @@ defmodule Servy.Handler do
 end
 
 request = """
-GET /wildthings HTTP/1.1
+GET /bears?id=1 HTTP/1.1
 Host: example.com
 User-Agent: ExampleBrowser/1.0
 Accept: */*
