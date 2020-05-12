@@ -6,6 +6,7 @@ defmodule Servy.Handler do
     |> rewrite_path
     |> log
     |> route
+    |> emojify
     |> track
     |> format_response
   end
@@ -65,6 +66,12 @@ defmodule Servy.Handler do
   def route(conv, _method, path) do
     %{ conv | status: 404, resp_body: "No #{path} here!" }
   end
+
+  def emojify(%{ status: 200 } = conv) do
+    %{ conv | resp_body: conv.resp_body <> " :)"}
+  end
+
+  def emojify(conv), do: conv
 
   def format_response(conv) do
     """
