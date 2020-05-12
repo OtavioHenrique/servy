@@ -20,6 +20,14 @@ defmodule Servy.Handler do
   def log(conv), do: IO.inspect(conv)
 
   def route(conv) do
+    route(conv, conv.method, conv.path)
+  end
+
+  def route(conv, "GET", "/bears") do
+    %{ conv | resp_body: "Teddy" }
+  end
+
+  def route(conv, "GET", "/wildthings") do
     %{ conv | resp_body: "Hello World" }
   end
 
