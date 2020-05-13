@@ -1,6 +1,14 @@
 defmodule Servy.Handler do
   require Logger
 
+  import Servy.Plugins
+  import Servy.Parser, only: [parse: 1]
+  import Servy.FileHandler
+
+  @moduledoc "Handles HTTP requests."
+
+  @pages_path Path.expand("pages", File.cwd!)
+
   def handle(request) do
     request
     |> parse
@@ -12,33 +20,6 @@ defmodule Servy.Handler do
     |> track
     |> format_response
   end
-
-  def parse(request) do
-    [method, path, _] =
-      request
-      |> String.split("\n")
-      |> List.first
-      |> String.split(" ")
-
-    %{
-      method: method,
-      path: path,
-      resp_body: "" ,
-      status: nil
-    }
-  end
-
-  def log(conv) do
-    Logger.info(inspect conv)
-    conv
-  end
-
-  def track(%{status: 404, path: path} = conv) do
-    Logger.info "Warning: #{path} is one the loose!"
-    conv
-  end
-
-  def track(conv), do: conv
 
   def rewrite_request(%{ path: path } = conv) do
     regex = ~r{\/(?<thing>\w+)\?id=(?<id>\d+)}
@@ -52,12 +33,6 @@ defmodule Servy.Handler do
 
   def rewrite_path_captures(conv, nil), do: conv
 
-  def rewrite_path(%{path: "wildlife" } = conv) do
-    %{ conv | path: "/wildthings" }
-  end
-
-  def rewrite_path(conv), do: conv
-
   def route(%{ method: "GET", path: "/bears" } = conv) do
     %{ conv | status: 200, resp_body: "Teddy" }
   end
@@ -70,23 +45,11 @@ defmodule Servy.Handler do
     %{ conv | status: 200, resp_body: "Bear #{id}" }
   end
 
-  def route(%{ method: "GET", path: "/about" } = conv) do
-    Path.expand("../../pages", __DIR__)
-    |> Path.join("about.html")
+  def route(%{ method: "GET", path: "/pages/" <> file } = conv) do
+    @pages_path
+    |> Path.join(file <> ".html")
     |> File.read
     |> handle_file(conv)
-  end
-
-  def handle_file({:ok, content}, conv) do
-    %{ conv | status: 200, resp_body: content }
-  end
-
-  def handle_file({:error, :enoent}, conv) do
-    %{ conv | status: 404, resp_body: "File not found!" }
-  end
-
-  def handle_file({:error, reason}, conv) do
-    %{ conv | status: 500, resp_body: "File error: #{reason}" }
   end
 
   def route(%{ method: "DELETE", path: "/bears/" <> _id} = conv) do
@@ -126,7 +89,7 @@ defmodule Servy.Handler do
 end
 
 request = """
-GET /about HTTP/1.1
+GET /pages/about HTTP/1.1
 Host: example.com
 User-Agent: ExampleBrowser/1.0
 Accept: */*
