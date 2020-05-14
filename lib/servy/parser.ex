@@ -11,6 +11,8 @@ defmodule Servy.Parser do
 
     headers = parse_headers(header_lines, %{})
 
+    IO.inspect headers
+
     %Conv{
       method: method,
       path: path,
@@ -34,4 +36,11 @@ defmodule Servy.Parser do
   end
 
   defp parse_headers(_ , headers), do: headers
+
+  #defp parse_headers(headers) do
+  #  Enum.reduce(headers, %{}, fn(line, headers_so_far) ->
+  #    [key, value]  = String.split(line, ": ")
+  #    Map.put(headers_so_far, key, value)
+  #  end)
+  #end
 end
