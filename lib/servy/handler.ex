@@ -94,7 +94,7 @@ Accept: */*
 """
 
 request_post =  """
-POST /bears HTTP/1.1
+GET /bears/1 HTTP/1.1
 Host: example.com
 User-Agent: ExampleBrowser/1.0
 Accept: */*
