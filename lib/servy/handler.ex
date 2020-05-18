@@ -35,10 +35,6 @@ defmodule Servy.Handler do
 
   def rewrite_path_captures(conv, nil), do: conv
 
-  def route(%Conv{ method: "GET", path: "/wildthings" } = conv) do
-    %{ conv | status: 200, resp_content_type: "text/html", resp_body: "Bears, Lions, Tigers" }
-  end
-
   def route(%Conv{ method: "GET", path: "/api/bears" } = conv) do
     Servy.Api.BearController.index(conv)
   end
@@ -52,13 +48,6 @@ defmodule Servy.Handler do
     BearController.show(conv, params)
   end
 
-  def route(%Conv{ method: "GET", path: "/pages/" <> file } = conv) do
-    @pages_path
-    |> Path.join(file <> ".html")
-    |> File.read
-    |> handle_file(conv)
-  end
-
   def route(%Conv{ method: "POST", path: "/bears" } = conv) do
     BearController.create(conv, conv.params)
   end
@@ -67,14 +56,21 @@ defmodule Servy.Handler do
     BearController.delete(conv)
   end
 
+  def route(%Conv{ method: "GET", path: "/pages/" <> file } = conv) do
+    @pages_path
+    |> Path.join(file <> ".html")
+    |> File.read
+    |> handle_file(conv)
+  end
+
   def route(%Conv{ path: path } = conv) do
-    %{ conv | status: 404, resp_content_type: "text/html", resp_body: "No #{path} here!" }
+    %{ conv | status: 404, resp_headers: %{"Content-Type" => "text/html"}, resp_body: "No #{path} here!" }
   end
 
   def format_response(%Conv{} = conv) do
     """
     HTTP/1.1 #{Conv.full_status(conv)}\r
-    Content-Type: #{conv.resp_content_type}\r
+    Content-Type: #{conv.resp_headers["Content-Type"]}\r
     Content-Length: #{byte_size(conv.resp_body)}\r
     \r
     #{conv.resp_body}
