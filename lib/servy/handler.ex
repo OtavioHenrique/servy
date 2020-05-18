@@ -36,7 +36,11 @@ defmodule Servy.Handler do
   def rewrite_path_captures(conv, nil), do: conv
 
   def route(%Conv{ method: "GET", path: "/wildthings" } = conv) do
-    %{ conv | status: 200, resp_body: "Bears, Lions, Tigers" }
+    %{ conv | status: 200, resp_content_type: "text/html", resp_body: "Bears, Lions, Tigers" }
+  end
+
+  def route(%Conv{ method: "GET", path: "/api/bears" } = conv) do
+    Servy.Api.BearController.index(conv)
   end
 
   def route(%Conv{ method: "GET", path: "/bears" } = conv) do
@@ -64,13 +68,13 @@ defmodule Servy.Handler do
   end
 
   def route(%Conv{ path: path } = conv) do
-    %{ conv | status: 404, resp_body: "No #{path} here!" }
+    %{ conv | status: 404, resp_content_type: "text/html", resp_body: "No #{path} here!" }
   end
 
   def format_response(%Conv{} = conv) do
     """
     HTTP/1.1 #{Conv.full_status(conv)}\r
-    Content-Type: text/html\r
+    Content-Type: #{conv.resp_content_type}\r
     Content-Length: #{byte_size(conv.resp_body)}\r
     \r
     #{conv.resp_body}
