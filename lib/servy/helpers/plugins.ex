@@ -1,4 +1,4 @@
-defmodule Servy.Plugins do
+defmodule Servy.Helpers.Plugins do
   require Logger
 
   alias Servy.Conv
@@ -14,10 +14,4 @@ defmodule Servy.Plugins do
     Logger.info(inspect conv)
     conv
   end
-
-  def rewrite_path(%Conv{path: "wildlife" } = conv) do
-    %{ conv | path: "/wildthings" }
-  end
-
-  def rewrite_path(%Conv{} = conv), do: conv
 end

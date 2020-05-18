@@ -1,4 +1,4 @@
-defmodule Servy.BearView do
+defmodule Servy.View.BearView do
   require EEx
 
   @templates_path Path.expand("templates", File.cwd!)

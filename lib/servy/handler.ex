@@ -2,11 +2,11 @@ defmodule Servy.Handler do
   require Logger
 
   alias Servy.Conv
-  alias Servy.BearController
+  alias Servy.Controllers.BearController
 
-  import Servy.Plugins
+  import Servy.Helpers.Plugins
   import Servy.Parser, only: [parse: 1]
-  import Servy.FileHandler
+  import Servy.Helpers.FileHandler
 
   @moduledoc "Handles HTTP requests."
 
@@ -16,7 +16,6 @@ defmodule Servy.Handler do
     request
     |> parse
     |> rewrite_request
-    |> rewrite_path
     |> log
     |> route
     |> track
@@ -36,7 +35,7 @@ defmodule Servy.Handler do
   def rewrite_path_captures(conv, nil), do: conv
 
   def route(%Conv{ method: "GET", path: "/api/bears" } = conv) do
-    Servy.Api.BearController.index(conv)
+    Servy.Controllers.Api.BearController.index(conv)
   end
 
   def route(%Conv{ method: "GET", path: "/bears" } = conv) do

@@ -1,4 +1,4 @@
-defmodule Servy.Bear do
+defmodule Servy.Context.Bear do
   defstruct id: nil, name: "", type: "", hibernating: false
 
   def is_grizzly(bear) do
