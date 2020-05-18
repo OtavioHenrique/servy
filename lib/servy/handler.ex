@@ -19,7 +19,6 @@ defmodule Servy.Handler do
     |> rewrite_path
     |> log
     |> route
-    |> emojify
     |> track
     |> format_response
   end
@@ -37,7 +36,7 @@ defmodule Servy.Handler do
   def rewrite_path_captures(conv, nil), do: conv
 
   def route(%Conv{ method: "GET", path: "/wildthings" } = conv) do
-    %{ conv | status: 200, resp_body: "Hello World" }
+    %{ conv | status: 200, resp_body: "Bears, Lions, Tigers" }
   end
 
   def route(%Conv{ method: "GET", path: "/bears" } = conv) do
@@ -68,42 +67,13 @@ defmodule Servy.Handler do
     %{ conv | status: 404, resp_body: "No #{path} here!" }
   end
 
-  def emojify(%Conv{ status: 200 } = conv) do
-    %{ conv | resp_body: conv.resp_body <> " :)"}
-  end
-
-  def emojify(conv), do: conv
-
   def format_response(%Conv{} = conv) do
     """
-    HTTP/1.1 #{Conv.full_status(conv)}
-    Content-Type: text/html
-    Content-Length: #{byte_size(conv.resp_body)}
-
+    HTTP/1.1 #{Conv.full_status(conv)}\r
+    Content-Type: text/html\r
+    Content-Length: #{byte_size(conv.resp_body)}\r
+    \r
     #{conv.resp_body}
     """
   end
 end
-
-request = """
-GET /pages/about HTTP/1.1
-Host: example.com
-User-Agent: ExampleBrowser/1.0
-Accept: */*
-
-"""
-
-request_post =  """
-GET /bears/1 HTTP/1.1
-Host: example.com
-User-Agent: ExampleBrowser/1.0
-Accept: */*
-Content-Type: application/x-www-form-urlencoded
-Content-Length: 21
-
-name=Baloo&type=Brown
-"""
-
-response = Servy.Handler.handle(request_post)
-
-IO.puts response
