@@ -11,4 +11,12 @@ defmodule Servy.Controllers.Api.BearController do
 
     %{ conv | status: 200, resp_body: json }
   end
+
+  def create(conv, %{ "type" => type, "name" => name }) do
+    response =
+      %{ "response": "Created a #{type} bear named #{name}!" }
+      |> Poison.encode!
+
+    %{ conv | status: 201, resp_headers: %{"Content-Type" => "application/json"}, resp_body: response }
+  end
 end

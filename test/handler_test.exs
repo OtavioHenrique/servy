@@ -161,6 +161,29 @@ defmodule HandlerTest do
     assert remove_whitespace(response) == remove_whitespace(expected_response)
   end
 
+  test "POST /api/bears" do
+    request = """
+    POST /api/bears HTTP/1.1\r
+    Host: example.com\r
+    User-Agent: ExampleBrowser/1.0\r
+    Accept: */*\r
+    Content-Type: application/json\r
+    Content-Length: 21\r
+    \r
+    {"name": "Breezly", "type": "Polar"}
+    """
+
+    response = handle(request)
+
+    assert response == """
+    HTTP/1.1 201 Created\r
+    Content-Length: 50\r
+    Content-Type: application/json\r
+    \r
+    {"response":"Created a Polar bear named Breezly!"}
+    """
+  end
+
   defp remove_whitespace(text) do
     String.replace(text, ~r{\s}, "")
   end
