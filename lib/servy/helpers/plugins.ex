@@ -5,6 +5,7 @@ defmodule Servy.Helpers.Plugins do
 
   def track(%Conv{status: 404, path: path} = conv) do
     Logger.info "Warning: #{path} is one the loose!"
+    Servy.External.FourOhFourCounter.bump_count(path)
     conv
   end
 
