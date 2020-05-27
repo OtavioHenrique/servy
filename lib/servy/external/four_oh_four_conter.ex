@@ -1,45 +1,29 @@
 defmodule Servy.External.FourOhFourCounter do
   @process_name :four_oh_four_counter
 
+  alias Servy.External.GenericServer
+
   def start do
-    pid = spawn(__MODULE__, :loop_state, [%{}])
-    Process.register(pid, @process_name)
-    pid
+    GenericServer.start(__MODULE__, %{}, @process_name)
   end
 
   def bump_count(route) do
-    send(@process_name, {self(), :bump_counter, route})
-
-    receive do {:result, _state} -> :ok end
+    GenericServer.cast(@process_name, {:bump_counter, route})
   end
 
   def get_count(route) do
-    send(@process_name, {self(), :count_route, route})
-
-    receive do {:result, count} -> count end
+    GenericServer.call(@process_name, {:count_route, route})
   end
 
   def get_counts do
-    send(@process_name, {self(), :get_counts})
-
-    receive do {:result, counts} -> counts end
+    GenericServer.call(@process_name, :get_counts)
   end
 
-  def loop_state(counter) do
-    receive do
-      {sender, :bump_counter, route} ->
-        new_map = Map.update(counter, route, 1, &(&1 + 1))
-        send(sender, {:result, new_map})
-        loop_state(new_map)
-      {sender, :count_route, route} ->
-        send(sender, {:result, counter[route]})
-        loop_state(counter)
-      {sender, :get_counts} ->
-        send(sender, {:result, counter})
-        loop_state(counter)
-      _unexpected ->
-        IO.puts "Unexpected command!"
-        loop_state(counter)
-    end
+  def handle_cast({:bump_counter, route}, counter) do
+    Map.update(counter, route, 1, &(&1 + 1))
   end
+
+  def handle_call(:get_counts, counter), do: {counter, counter}
+
+  def handle_call({:count_route, route}, counter), do: { Map.get(counter, route, 0), counter}
 end
