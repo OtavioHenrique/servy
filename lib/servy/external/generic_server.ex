@@ -24,8 +24,8 @@ defmodule Servy.External.GenericServer do
       {:cast, message} ->
         new_state = callback_module.handle_cast(message, state)
         listen_loop(new_state, callback_module)
-      unexpected ->
-        IO.puts "Unexpected message #{inspect unexpected}"
+      other ->
+        new_state = callback_module.handle_info(other, state)
         listen_loop(state, callback_module)
     end
   end

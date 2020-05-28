@@ -4,7 +4,7 @@ defmodule PledgeServer do
   alias Servy.External.PledgeServer
 
   test "pledge server" do
-    PledgeServer.start
+    {:ok, pid} = PledgeServer.start
 
     PledgeServer.create_pledge("test1", 100)
     PledgeServer.create_pledge("test2", 100)
